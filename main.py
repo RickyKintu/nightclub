@@ -46,7 +46,7 @@ wave_timer = 0
 light_timer = 0
 
 # Initialize stats
-money = 1000
+money = 2000
 guests = 1  # Start with 1 guest
 capacity = 20
 security = 0
