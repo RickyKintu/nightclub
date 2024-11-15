@@ -1,6 +1,7 @@
 # draw_elements.py
 
 import pygame
+import random
 from settings import  SCREEN_WIDTH, SCREEN_HEIGHT,GRAY, SPEAKER_COLOR, TABLE_COLOR, DOORWAY_X, DOORWAY_Y, DOORWAY_LIGHT_COLOR
 from components.spotlight import Spotlight
 
@@ -15,6 +16,27 @@ NEON_COLORS = [
     (255, 102, 0)   # Orange
 ]
 
+def get_random_dance_floor_tile():
+    # Dance floor parameters
+    top_left = (300, 150)
+    top_right = (500, 150)
+    bottom_left = (250, 350)
+    rows = 10
+    cols = 10
+
+    # Select a random row and column
+    row = random.randint(0, rows - 1)
+    col = random.randint(0, cols - 1)
+
+    # Calculate the center position of the selected tile
+    start_x = top_left[0] + col * (top_right[0] - top_left[0]) // cols + row * (bottom_left[0] - top_left[0]) // rows
+    start_y = top_left[1] + row * (bottom_left[1] - top_left[1]) // rows
+    tile_width = (top_right[0] - top_left[0]) // cols
+    tile_height = (bottom_left[1] - top_left[1]) // rows
+
+    # Return the center of the tile
+    return (start_x + tile_width // 2, start_y + tile_height // 2)
+
 def draw_dance_floor(screen, wave_step):
     top_left = (300, 150)
     top_right = (500, 150)
@@ -28,11 +50,9 @@ def draw_dance_floor(screen, wave_step):
     # Draw each tile based on distance from two corners
     for row in range(rows):
         for col in range(cols):
-            # Calculate distance from bottom-left and top-right corners
             distance_from_bottom_left = row + col
             distance_from_top_right = (rows - 1 - row) + (cols - 1 - col)
 
-            # Determine which wave step to apply based on distance
             if distance_from_bottom_left <= wave_step:
                 color_index = distance_from_bottom_left % len(NEON_COLORS)
                 tile_color = NEON_COLORS[color_index]
@@ -42,14 +62,13 @@ def draw_dance_floor(screen, wave_step):
             else:
                 tile_color = GRAY
 
-            # Calculate position and size for each tile within the parallelogram
             start_x = top_left[0] + col * (top_right[0] - top_left[0]) // cols + row * (bottom_left[0] - top_left[0]) // rows
             start_y = top_left[1] + row * (bottom_left[1] - top_left[1]) // rows
             tile_width = (top_right[0] - top_left[0]) // cols - margin
             tile_height = (bottom_left[1] - top_left[1]) // rows - margin
 
-            # Draw the tile
             pygame.draw.rect(screen, tile_color, pygame.Rect(start_x, start_y, tile_width, tile_height))
+
 
 def draw_speakers_and_table(screen, wave_timer):
     # Positions for speakers and table

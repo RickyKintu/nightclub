@@ -5,7 +5,7 @@ import sys
 import time
 import random
 from settings import SCREEN_WIDTH, SCREEN_HEIGHT, BLACK
-from draw_elements import draw_dance_floor, draw_speakers_and_table, draw_spotlights
+from draw_elements import draw_dance_floor, draw_speakers_and_table, draw_spotlights, get_random_dance_floor_tile
 from components.menu import draw_vertical_menu
 from components.stats import draw_stats
 from components.guest import Guest
@@ -14,26 +14,19 @@ from components.walkway import Walkway
 # Initialize the walkway with a starting position and desired lengths
 walkway = Walkway(start_x=700, start_y=SCREEN_HEIGHT - 50, length=300, turn_length=200)
 
-# Define dance floor dimensions
-DANCE_FLOOR_TOP_LEFT = (300, 150)  # Exact upper-left corner of dance floor
-TILE_SIZE = 40                     # Exact tile size
-DANCE_FLOOR_ROWS = 10
-DANCE_FLOOR_COLS = 10
-
-# Define function to get a random position on the dance floor
-def get_random_dance_floor_position():
-    col = random.randint(0, DANCE_FLOOR_COLS - 1)
-    row = random.randint(0, DANCE_FLOOR_ROWS - 1)
-    x = DANCE_FLOOR_TOP_LEFT[0] + col * TILE_SIZE + TILE_SIZE // 2
-    y = DANCE_FLOOR_TOP_LEFT[1] + row * TILE_SIZE + TILE_SIZE // 2
-    return x, y
-
 # Initialize Pygame
 pygame.init()
 
 # Set up the screen
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Nattklubbsspel - Converging Waves Effect")
+
+# Load multiple character sprite sheets
+character_sprites = [
+    pygame.image.load(f'./assets/32x32/Char_00{i}.png').convert_alpha() for i in range(1, 7)
+]
+
+
 
 # Variables for controlling the waves
 last_update_time = time.time() * 1000
@@ -79,17 +72,25 @@ while running:
     wave_timer += 0.1
     light_timer += 1
 
+    DANCE_FLOOR_BOUNDS = (300, 150, 400, 400)  # Adjust these values to match your dance floor area
+
+
     # Check if the guest count has increased
     if guests > previous_guest_count:
         # Generate a new random position on the dance floor for each guest
-        random_dance_floor_position = get_random_dance_floor_position()
+        random_dance_floor_position = get_random_dance_floor_tile()
         waypoints = [
             (spawn_x, spawn_y),                         # Starting point
             (spawn_x, spawn_y - 300),                   # Move up to the turn
             (spawn_x - 200, spawn_y - 300),             # Turn left along the horizontal section
             random_dance_floor_position                 # Random tile on the dance floor
         ]
-        new_guest = Guest(start_x=spawn_x, start_y=spawn_y, waypoints=waypoints)
+
+        # Choose a random character sprite sheet for the new guest
+        random_sprite_sheet = random.choice(character_sprites)
+
+        new_guest = Guest(start_x=spawn_x, start_y=spawn_y, waypoints=waypoints, sprite_sheet=random_sprite_sheet,    get_random_dance_floor_tile=get_random_dance_floor_tile
+)
         guest_instances.append(new_guest)
         previous_guest_count = guests
 
@@ -117,11 +118,12 @@ while running:
     draw_spotlights(screen, light_timer)
     walkway.draw(screen)
 
-    # Update and draw guests
+   
+    # Debugging visuals and guest movement
     for guest in guest_instances:
+        # Move and draw each guest
         guest.move()
         guest.draw(screen)
-
     pygame.display.flip()
 
 pygame.quit()
