@@ -15,6 +15,13 @@ from components.bouncer import Bouncer
 # Initialize the walkway with a starting position and desired lengths
 walkway = Walkway(start_x=700, start_y=SCREEN_HEIGHT - 50, length=300, turn_length=200)
 
+# Define bouncer blocking position (e.g., near the entrance)
+BLOCKING_POSITION = (walkway.stanchions[-1][0] - 30, walkway.stanchions[-1][1] - 40)
+
+# Define the queue starting position near the bouncer
+QUEUE_START_X = BLOCKING_POSITION[0]
+QUEUE_START_Y = BLOCKING_POSITION[1] + 50  # Adjusted below the bouncer for queuing guests
+
 # Initialize Pygame
 pygame.init()
 
@@ -182,16 +189,30 @@ while running:
             guest_instances.append(new_guest)
             previous_guest_count = guests
 
-
+        # Update game stats
         security = str(len(bouncers))
-        # Draw game elements
         draw_stats(screen, money[0], guests, capacity, security)
+
+        # Draw game elements
         draw_dance_floor(screen, wave_step)
         draw_speakers_and_table(screen, wave_timer)
         draw_spotlights(screen, light_timer)
         walkway.draw(screen)
 
-        # Draw all Bouncers
+        # Bouncer and capacity handling
+        if guests > capacity:
+            if bouncers:
+                bouncers[0].target_x, bouncers[0].target_y = BLOCKING_POSITION
+                bouncers[0].move_to_target()
+
+            # Line guests vertically in front of the bouncer
+            for i, guest in enumerate([g for g in guest_instances if g.current_waypoint == 0]):
+                guest.target_location = (QUEUE_START_X, QUEUE_START_Y + i * 40)  # Offset each guest below the last
+        else:
+            for guest in guest_instances:
+                guest.pause_timer = 0
+
+        # Draw all bouncers
         for bouncer in bouncers:
             bouncer.draw(screen)
 

@@ -10,7 +10,9 @@ class Bouncer:
         """
         self.x = x
         self.y = y
-        self.speed = 0  # Bouncers don't move by default
+        self.target_x = x  # Initialize the target position
+        self.target_y = y  # Initialize the target position
+        self.speed = 2  # Set the speed for the bouncer
         self.current_direction = "down"
         self.current_frame = 0
         self.frame_duration = 10
@@ -51,6 +53,23 @@ class Bouncer:
             self.current_frame = (self.current_frame + 1) % len(self.frames[self.current_direction])
             self.frame_timer = 0
 
+    def move_to_target(self):
+        """Move the Bouncer towards its target position."""
+        dx = self.target_x - self.x
+        dy = self.target_y - self.y
+        distance = (dx ** 2 + dy ** 2) ** 0.5
+
+        if distance > self.speed:
+            self.x += self.speed * (dx / distance)
+            self.y += self.speed * (dy / distance)
+
+            # Update direction
+            self.current_direction = "up" if dy < 0 else "down"
+            self.is_moving = True
+        else:
+            self.x, self.y = self.target_x, self.target_y  # Snap to target position
+            self.is_moving = False
+
     def draw(self, screen):
         """
         Draw the Bouncer on the screen.
@@ -58,4 +77,5 @@ class Bouncer:
         """
         current_image = self.frames[self.current_direction][self.current_frame]
         screen.blit(current_image, (int(self.x) - 16, int(self.y) - 20))  # Adjust to center
-        self.update_animation()
+        if self.is_moving:
+            self.update_animation()
