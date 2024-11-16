@@ -7,7 +7,7 @@ GOLD = (255, 215, 0)
 HOVER_COLOR = (255, 223, 120)  # Lighter shade of gold for hover effect
 
 # Define menu items
-menu_items = ["Upgrade", "DJ", "Light", "Security", "Add guest"]
+menu_items = ["Upgrade", "Shop", "Light", "Security", "Add guest"]
 
 def draw_vertical_menu(screen):
     font = pygame.font.SysFont("Arial", 24)  # Choose a font and size
@@ -18,7 +18,8 @@ def draw_vertical_menu(screen):
 
     # Get the mouse position
     mouse_x, mouse_y = pygame.mouse.get_pos()
-    add_guest_button_rect = None  # Initialize a variable to store "Add guest" button rect
+
+    button_rects = {}  # Store button rectangles with their names
 
     for i, item in enumerate(menu_items):
         # Calculate position for each menu item
@@ -39,8 +40,7 @@ def draw_vertical_menu(screen):
         text_rect = text_surface.get_rect(center=(x + bar_width // 2, y + bar_height // 2))
         screen.blit(text_surface, text_rect)
 
-        # Store the "Add guest" button rect for click detection
-        if item == "Add guest":
-            add_guest_button_rect = pygame.Rect(x, y, bar_width, bar_height)
+        # Save button rect for click detection
+        button_rects[item] = pygame.Rect(x, y, bar_width, bar_height)
 
-    return add_guest_button_rect
+    return button_rects

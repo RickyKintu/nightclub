@@ -1,6 +1,7 @@
 import pygame
 import math
 import random
+from components.chat_bubble import ChatBubble
 
 class Guest:
     def __init__(self, start_x, start_y, waypoints, sprite_sheet, get_random_dance_floor_tile):
@@ -26,6 +27,11 @@ class Guest:
         self.frame_duration = 10
         self.frame_timer = 0
         self.is_moving = False  # Tracks if the guest is currently moving
+
+        self.chat_bubble = None  # Chat bubble for guest's needs
+        self.need_state = None  # Current need state
+        self.need_timer = random.randint(300, 600)  # Timer to trigger a need
+
 
     def extract_frames(self, sprite_sheet, y_offset):
         frames = []
@@ -104,6 +110,33 @@ class Guest:
         else:
             self.current_frame = 0  # Reset animation to the first frame when not moving
 
+    def update_need(self, bubble_images):
+        """
+        Update the guest's need state and assign a chat bubble if necessary.
+        :param bubble_images: Dictionary of images for different needs.
+        """
+        self.need_timer -= 1
+        if self.need_timer <= 0:
+            # Randomly assign a need state
+            self.need_state = random.choice(["thirsty", "toilet", "hungry"])
+            self.chat_bubble = ChatBubble(self, bubble_images[self.need_state])
+            self.need_timer = random.randint(300, 600)  # Reset timer
+
+        if self.chat_bubble:
+            self.chat_bubble.update()  # Update the visibility of the chat bubble
+
+    def clear_need(self):
+        """Clear the guest's current need and remove the chat bubble."""
+        self.need_state = None
+        self.chat_bubble = None
+
     def draw(self, screen):
         current_image = self.frames[self.current_direction][self.current_frame]
         screen.blit(current_image, (int(self.x) - 16, int(self.y) - 20))  # Adjust to center
+        if self.chat_bubble:
+            self.chat_bubble.draw(screen)
+
+    def is_clicked(self, mouse_pos):
+        """Check if the guest is clicked."""
+        guest_rect = pygame.Rect(int(self.x) - 16, int(self.y) - 20, 32, 40)  # Guest's clickable area
+        return guest_rect.collidepoint(mouse_pos)
