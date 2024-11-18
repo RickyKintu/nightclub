@@ -9,7 +9,7 @@ class Guest:
         self.y = start_y
         self.waypoints = waypoints
         self.current_waypoint = 0
-        self.speed = 2
+        self.speed = 3
         self.free_movement = False  # Flag for free movement after waypoints
         self.pause_timer = 0  # Timer for pausing
         self.target_location = None  # Target location for free movement

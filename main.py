@@ -109,6 +109,7 @@ shop_catalog = ShopCatalog(screen, categories, money, bouncer_sprite, walkway, b
 # Shop state
 shop_open = False
 
+dropdown_open = False  # Track whether the dropdown menu is open
 
 
 # Main game loop
@@ -119,7 +120,7 @@ while running:
 
     
     # Draw the vertical menu and get button rects
-    button_rects = draw_vertical_menu(screen)
+    button_rects = draw_vertical_menu(screen, dropdown_open)
 
     # Event handling
     mouse_pos = pygame.mouse.get_pos()
@@ -158,10 +159,21 @@ while running:
                             modal = Modal(screen, guest)  # Modal will now slide below the guest
                             break
 
+                    if dropdown_open:
+                        for category in categories.keys():  # Loop through dropdown items
+                            if button_rects.get(category) and button_rects[category].collidepoint(mouse_pos):
+                                print(f"Selected {category}")
+                                shop_catalog.open_category(category)  # Open the shop catalog for the selected category
+                                shop_open = True  # Open shop
+                                dropdown_open = False  # Close dropdown
+                                break
+                        else:
+                            dropdown_open = False  # Close dropdown if clicked outside
+
             # Handle menu buttons
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if button_rects["Shop"].collidepoint(mouse_pos):
-                    shop_open = True
+                    dropdown_open = not dropdown_open  # Toggle the dropdown menu
                 if button_rects["Add guest"].collidepoint(mouse_pos):
                     guests += 1
 
